@@ -1,4 +1,5 @@
 import sys
+import os
 import subprocess
 import json
 import bisect
@@ -47,6 +48,9 @@ def fetch_all_cards(page_max):
 	return card_list
 
 def main(argv):
+	# スクリプトの場所を起点に data ディレクトリに移動する
+	os.chdir(os.path.join(os.path.dirname(__file__), '../data'))
+
 	page_max = 0xffff
 	if (len(argv) >= 2):
 		page_max = int(argv[1])
