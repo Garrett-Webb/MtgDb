@@ -49,7 +49,7 @@ def fetch_all_cards(page_max):
 
 def main(argv):
 	# スクリプトの場所を起点に data ディレクトリに移動する
-	os.chdir(os.path.join(os.path.dirname(__file__), '../data'))
+	os.chdir(os.path.join(os.path.dirname(__file__), '../data/cards'))
 
 	page_max = 0xffff
 	if (len(argv) >= 2):
@@ -78,7 +78,7 @@ def main(argv):
 		ranged_cards = all_cards[left:right]
 		# 先頭2ケタのファイル名で保存
 		with open('{:02x}.json'.format(i), 'w') as f:
-			json.dump({'cards': ranged_cards}, f)
+			json.dump({'cards': ranged_cards}, f, indent='\t')
 		saved_count += len(ranged_cards)
 	# 総数が一致するか確認する
 	assert saved_count == len(all_cards)
