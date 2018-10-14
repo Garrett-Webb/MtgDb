@@ -7,6 +7,28 @@ import collections
 from time import sleep
 from operator import itemgetter
 
+def curl_json(url):
+	err_count = 0
+	retry = True
+	while retry:
+		retry = False
+		try:
+			result = subprocess.run(['curl', url], check=True,
+				stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+			# stdout を UTF-8 デコードして JSON パースして返す
+			# 一応キーの順序は保存する
+			src = result.stdout.decode('utf-8')
+			return json.loads(src, object_pairs_hook=collections.OrderedDict)
+		except subprocess.CalledProcessError:
+			# 3秒待ってリトライする
+			# 何回もエラーになるようなら例外をそのまま投げる
+			retry = True
+			err_count += 1
+			if err_count >= 5:
+				raise
+			print('retry...')
+			sleep(3)
+
 def fetch_all_cards(page_max):
 	card_list = []
 
@@ -16,25 +38,8 @@ def fetch_all_cards(page_max):
 	urlfmt = 'https://api.magicthegathering.io/v1/cards?page={}&pageSize={}'
 	while page <= page_max:
 		url = urlfmt.format(page, page_size)
-		err_count = 0
-		retry = True
-		while retry:
-			retry = False
-			try:
-				result = subprocess.run(['curl', url], check=True,
-					stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-			except subprocess.CalledProcessError:
-				retry = True
-				err_count += 1
-				if err_count >= 5:
-					raise
-				print('retry...')
-				sleep(3)
-
-		# JSON パースして cards プロパティからカード配列を取得
-		# 一応キーの順序は保存する
-		page_json = json.loads(result.stdout.decode('utf-8'),
-			object_pairs_hook=collections.OrderedDict)
+		# cards プロパティからカード配列を取得
+		page_json = curl_json(url)
 		list_in_page = page_json['cards']
 		# 長さ0なら終了
 		if len(list_in_page) == 0:
@@ -47,16 +52,9 @@ def fetch_all_cards(page_max):
 
 	return card_list
 
-def main(argv):
-	# スクリプトの場所を起点に data ディレクトリに移動する
-	os.chdir(os.path.join(os.path.dirname(__file__), '../data/cards'))
-
-	page_max = 0xffff
-	if (len(argv) >= 2):
-		page_max = int(argv[1])
-
+def cards_main():
 	# 全カードリスト取得
-	all_cards = fetch_all_cards(page_max)
+	all_cards = fetch_all_cards(0xffff)
 	# id プロパティで全体をソート
 	all_cards.sort(key=itemgetter('id'))
 
@@ -77,11 +75,29 @@ def main(argv):
 		# 得たインデックスをカードリストに適用して抜き出す
 		ranged_cards = all_cards[left:right]
 		# 先頭2ケタのファイル名で保存
-		with open('{:02x}.json'.format(i), 'w') as f:
+		with open('cards/{:02x}.json'.format(i), 'w') as f:
 			json.dump({'cards': ranged_cards}, f, indent='\t')
 		saved_count += len(ranged_cards)
 	# 総数が一致するか確認する
 	assert saved_count == len(all_cards)
+
+def sets_main():
+	url = 'https://api.magicthegathering.io/v1/sets'
+	sets_json = curl_json(url)
+	with open('sets/sets.json', 'w') as f:
+		json.dump(sets_json, f, indent='\t')
+
+def main(argv):
+	# スクリプトの場所を起点に data ディレクトリに移動する
+	os.chdir(os.path.join(os.path.dirname(__file__), '../data'))
+
+	enable_cards = (len(argv) <= 1 or 'cards' in argv)
+	enable_sets = (len(argv) <= 1 or 'sets' in argv)
+
+	if enable_sets:
+		sets_main()
+	if enable_cards:
+		cards_main()
 
 
 main(sys.argv)
