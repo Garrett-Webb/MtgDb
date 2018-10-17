@@ -21,7 +21,7 @@ def merge_all(files: list, outfile: str):
 					merged[k] = part[k]
 	print('Writing...', outfile)
 	with open(outfile, 'w') as f:
-		json.dump(merged, f)
+		json.dump(merged, f, separators=(',', ':'))
 	print('complete!')
 
 # 圧縮する
