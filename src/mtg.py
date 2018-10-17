@@ -90,13 +90,32 @@ def sets_main():
 	with open('sets/sets.json', 'w') as f:
 		json.dump(sets_json, f, indent='\t')
 
+def types_main():
+	url = 'https://api.magicthegathering.io/v1/types'
+	types_json = curl_json(url)
+	url = 'https://api.magicthegathering.io/v1/subtypes'
+	subtypes_json = curl_json(url)
+	url = 'https://api.magicthegathering.io/v1/supertypes'
+	supertypes_json = curl_json(url)
+
+	merged = {
+		'types':		types_json['types'],
+		'subtypes':		subtypes_json['subtypes'],
+		'supertypes':	supertypes_json['supertypes'],
+	}
+	with open('types/types.json', 'w') as f:
+		json.dump(merged, f, indent='\t')
+
 def main(argv: list):
 	# スクリプトの場所を起点に data ディレクトリに移動する
 	os.chdir(os.path.join(os.path.dirname(__file__), '../data'))
 
-	enable_cards = (len(argv) <= 1 or 'cards' in argv)
+	enable_types = (len(argv) <= 1 or 'types' in argv)
 	enable_sets = (len(argv) <= 1 or 'sets' in argv)
+	enable_cards = (len(argv) <= 1 or 'cards' in argv)
 
+	if enable_types:
+		types_main()
 	if enable_sets:
 		sets_main()
 	if enable_cards:
