@@ -7,7 +7,8 @@ import collections
 from time import sleep
 from operator import itemgetter
 
-def curl_json(url):
+def curl_json(url: str) -> collections.OrderedDict:
+	"""curl コマンドを実行して JSON オブジェクトにパースして返す"""
 	err_count = 0
 	retry = True
 	while retry:
@@ -29,7 +30,8 @@ def curl_json(url):
 			print('retry...')
 			sleep(3)
 
-def fetch_all_cards(page_max):
+def fetch_all_cards(page_max: int) -> list:
+	"""100枚ずつ読んで cards 配列プロパティを1つの配列にして返す"""
 	card_list = []
 
 	# 空リストが返ってくるまで全ページ読む
@@ -53,7 +55,7 @@ def fetch_all_cards(page_max):
 	return card_list
 
 def cards_main():
-	# 全カードリスト取得
+	"""全カードリストを取得して保存"""
 	all_cards = fetch_all_cards(0xffff)
 	# id プロパティで全体をソート
 	all_cards.sort(key=itemgetter('id'))
@@ -82,12 +84,13 @@ def cards_main():
 	assert saved_count == len(all_cards)
 
 def sets_main():
+	"""全カードセットデータを取得して保存"""
 	url = 'https://api.magicthegathering.io/v1/sets'
 	sets_json = curl_json(url)
 	with open('sets/sets.json', 'w') as f:
 		json.dump(sets_json, f, indent='\t')
 
-def main(argv):
+def main(argv: list):
 	# スクリプトの場所を起点に data ディレクトリに移動する
 	os.chdir(os.path.join(os.path.dirname(__file__), '../data'))
 
