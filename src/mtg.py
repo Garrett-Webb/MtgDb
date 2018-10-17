@@ -83,6 +83,13 @@ def cards_main():
 	# 総数が一致するか確認する
 	assert saved_count == len(all_cards)
 
+def formats_main():
+	"""全フォーマットデータを取得して保存"""
+	url = 'https://api.magicthegathering.io/v1/formats'
+	formats_json = curl_json(url)
+	with open('formats/formats.json', 'w') as f:
+		json.dump(formats_json, f, indent='\t')
+
 def sets_main():
 	"""全カードセットデータを取得して保存"""
 	url = 'https://api.magicthegathering.io/v1/sets'
@@ -91,6 +98,7 @@ def sets_main():
 		json.dump(sets_json, f, indent='\t')
 
 def types_main():
+	"""全カードタイプ(サブタイプ、特殊タイプを含む)を取得して保存"""
 	url = 'https://api.magicthegathering.io/v1/types'
 	types_json = curl_json(url)
 	url = 'https://api.magicthegathering.io/v1/subtypes'
@@ -110,16 +118,25 @@ def main(argv: list):
 	# スクリプトの場所を起点に data ディレクトリに移動する
 	os.chdir(os.path.join(os.path.dirname(__file__), '../data'))
 
+	help_exit = 'help' in argv
 	enable_types = (len(argv) <= 1 or 'types' in argv)
+	enable_formats = (len(argv) <= 1 or 'formats' in argv)
 	enable_sets = (len(argv) <= 1 or 'sets' in argv)
 	enable_cards = (len(argv) <= 1 or 'cards' in argv)
 
+	if help_exit:
+		print('Usage: {} [task1 task2 ...]'.format(argv[0]))
+		print('Tasks: types formats sets cards')
+		print('If no tasks are specified, run all tasks')
+
 	if enable_types:
 		types_main()
+	if enable_formats:
+		formats_main()
 	if enable_sets:
 		sets_main()
 	if enable_cards:
 		cards_main()
 
-
+# entry point
 main(sys.argv)
