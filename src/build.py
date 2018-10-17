@@ -40,7 +40,7 @@ def merge_all(files: list, outfile: str):
 	print(json.dumps(merged['version']))
 	print('Writing...', outfile)
 	with open(outfile, 'w') as f:
-		json.dump(merged, f, separators=(',', ':'))
+		json.dump(merged, f, separators=(',', ':'), ensure_ascii=False)
 	print('complete!')
 
 # 圧縮する

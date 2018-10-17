@@ -78,7 +78,8 @@ def cards_main():
 		ranged_cards = all_cards[left:right]
 		# 先頭2ケタのファイル名で保存
 		with open('cards/{:02x}.json'.format(i), 'w') as f:
-			json.dump({'cards': ranged_cards}, f, indent='\t')
+			json.dump({'cards': ranged_cards}, f,
+				indent='\t', ensure_ascii=False)
 		saved_count += len(ranged_cards)
 	# 総数が一致するか確認する
 	assert saved_count == len(all_cards)
@@ -88,14 +89,14 @@ def formats_main():
 	url = 'https://api.magicthegathering.io/v1/formats'
 	formats_json = curl_json(url)
 	with open('formats/formats.json', 'w') as f:
-		json.dump(formats_json, f, indent='\t')
+		json.dump(formats_json, f, indent='\t', ensure_ascii=False)
 
 def sets_main():
 	"""全カードセットデータを取得して保存"""
 	url = 'https://api.magicthegathering.io/v1/sets'
 	sets_json = curl_json(url)
 	with open('sets/sets.json', 'w') as f:
-		json.dump(sets_json, f, indent='\t')
+		json.dump(sets_json, f, indent='\t', ensure_ascii=False)
 
 def types_main():
 	"""全カードタイプ(サブタイプ、特殊タイプを含む)を取得して保存"""
@@ -112,7 +113,7 @@ def types_main():
 		'supertypes':	supertypes_json['supertypes'],
 	}
 	with open('types/types.json', 'w') as f:
-		json.dump(merged, f, indent='\t')
+		json.dump(merged, f, indent='\t', ensure_ascii=False)
 
 def main(argv: list):
 	# スクリプトの場所を起点に data ディレクトリに移動する
