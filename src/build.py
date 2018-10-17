@@ -4,9 +4,26 @@ import subprocess
 import json
 from collections import OrderedDict
 
+def git_info() -> OrderedDict:
+	# HEAD のコミット情報を取得
+	format = '--pretty=format:%H%n%s%n%ai%n%aI%n%at'
+	result = subprocess.run(['git', 'show', '--no-patch', format],
+		check=True, stdout=subprocess.PIPE)
+	outline = result.stdout.decode(sys.stdout.encoding)
+	hash, subject, date, date_iso8601, date_unix, *rest = outline.split('\n')
+
+	info = OrderedDict()
+	info['hash'] = hash
+	info['subject'] = subject
+	info['date'] = date
+	info['date_iso8601'] = date_iso8601
+	info['date_unix'] = date_unix
+	return { 'version': info }
+
 # 1つの JSON ファイルにまとめる
 def merge_all(files: list, outfile: str):
 	merged = OrderedDict()
+	merged.update(git_info())
 	for file_name in files:
 		with open(file_name, 'r') as f:
 			print('Processing...', file_name)
@@ -19,6 +36,8 @@ def merge_all(files: list, outfile: str):
 				# 無い場合は新たに追加する
 				else:
 					merged[k] = part[k]
+	print('Version info')
+	print(json.dumps(merged['version']))
 	print('Writing...', outfile)
 	with open(outfile, 'w') as f:
 		json.dump(merged, f, separators=(',', ':'))

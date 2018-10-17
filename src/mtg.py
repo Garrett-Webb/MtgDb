@@ -18,7 +18,7 @@ def curl_json(url: str) -> collections.OrderedDict:
 				stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
 			# stdout を UTF-8 デコードして JSON パースして返す
 			# 一応キーの順序は保存する
-			src = result.stdout.decode('utf-8')
+			src = result.stdout.decode(sys.stdout.encoding)
 			return json.loads(src, object_pairs_hook=collections.OrderedDict)
 		except subprocess.CalledProcessError:
 			# 3秒待ってリトライする
