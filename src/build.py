@@ -26,8 +26,11 @@ def merge_all(files: list, outfile: str):
 
 # 圧縮する
 def compress(file_in: str, file_out: str):
-	# not implemented
-	pass
+	# 最高圧縮率で zip する
+	# 出力はリダイレクトせずそのまま流す
+	print('Run zip...')
+	subprocess.run(['zip', '-9', file_out, file_in], check=True)
+	print('complete!')
 
 def main(argv: list):
 	# スクリプトの場所を起点に dist ディレクトリを作成して移動する
@@ -44,8 +47,12 @@ def main(argv: list):
 	for i in range(0x100):
 		srcs.append('../data/cards/{:02x}.json'.format(i))
 
-	merge_all(srcs, 'mtgdb.json')
-	compress()
+	# 出力ファイル
+	merged_file = 'mtgdb.json'
+	compressed_file = 'mtgdb.zip'
+
+	merge_all(srcs, merged_file)
+	compress(merged_file, compressed_file)
 
 # entry point
 main(sys.argv)
