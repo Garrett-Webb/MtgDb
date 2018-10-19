@@ -5,7 +5,7 @@ https://magicthegathering.io/
 
 ## Install tools (Debian case)
 ```
-sudo apt install curl git zip
+sudo apt install curl git
 sudo apt install python-3
 ```
 

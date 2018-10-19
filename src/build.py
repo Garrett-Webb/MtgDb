@@ -3,6 +3,7 @@ import os
 import subprocess
 import json
 from collections import OrderedDict
+import zipfile
 
 def git_info() -> OrderedDict:
 	"""git コマンドでバージョン情報を取得する"""
@@ -78,8 +79,9 @@ def compress(file_in: str, file_out: str):
 	"""圧縮する"""
 	# 最高圧縮率で zip する
 	# 出力はリダイレクトせずそのまま流す
-	print('Run zip...')
-	subprocess.run(['zip', '-9', file_out, file_in], check=True)
+	print('Create zip...', file_out)
+	with zipfile.ZipFile(file_out, 'w', compression=zipfile.ZIP_DEFLATED) as zip:
+		zip.write(file_in)
 	print('complete!')
 
 def main(argv: list):
