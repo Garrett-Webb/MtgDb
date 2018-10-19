@@ -3,24 +3,25 @@ import os
 import subprocess
 import json
 import bisect
-import collections
+from collections import OrderedDict
 from time import sleep
 from operator import itemgetter
+import urllib.request
 
-def curl_json(url: str) -> collections.OrderedDict:
-	"""curl コマンドを実行して JSON オブジェクトにパースして返す"""
+def http_json(url: str) -> OrderedDict:
+	"""HTTP GET して JSON オブジェクトにパースして返す"""
+	req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
 	err_count = 0
 	retry = True
 	while retry:
 		retry = False
 		try:
-			result = subprocess.run(['curl', url], check=True,
-				stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-			# stdout を UTF-8 デコードして JSON パースして返す
-			# 一応キーの順序は保存する
-			src = result.stdout.decode(sys.stdout.encoding)
-			return json.loads(src, object_pairs_hook=collections.OrderedDict)
-		except subprocess.CalledProcessError:
+			with urllib.request.urlopen(req) as res:
+				# stdout を UTF-8 デコードして JSON パースして返す
+				# 一応キーの順序は保存する
+				src = res.read().decode('utf-8')
+				return json.loads(src, object_pairs_hook=OrderedDict)
+		except urllib.error.URLError:
 			# 3秒待ってリトライする
 			# 何回もエラーになるようなら例外をそのまま投げる
 			retry = True
@@ -41,7 +42,7 @@ def fetch_all_cards(page_max: int) -> list:
 	while page <= page_max:
 		url = urlfmt.format(page, page_size)
 		# cards プロパティからカード配列を取得
-		page_json = curl_json(url)
+		page_json = http_json(url)
 		list_in_page = page_json['cards']
 		# 長さ0なら終了
 		if len(list_in_page) == 0:
@@ -87,25 +88,25 @@ def cards_main():
 def formats_main():
 	"""全フォーマットデータを取得して保存"""
 	url = 'https://api.magicthegathering.io/v1/formats'
-	formats_json = curl_json(url)
+	formats_json = http_json(url)
 	with open('formats/formats.json', 'w') as f:
 		json.dump(formats_json, f, indent='\t', ensure_ascii=False)
 
 def sets_main():
 	"""全カードセットデータを取得して保存"""
 	url = 'https://api.magicthegathering.io/v1/sets'
-	sets_json = curl_json(url)
+	sets_json = http_json(url)
 	with open('sets/sets.json', 'w') as f:
 		json.dump(sets_json, f, indent='\t', ensure_ascii=False)
 
 def types_main():
 	"""全カードタイプ(サブタイプ、特殊タイプを含む)を取得して保存"""
 	url = 'https://api.magicthegathering.io/v1/types'
-	types_json = curl_json(url)
+	types_json = http_json(url)
 	url = 'https://api.magicthegathering.io/v1/subtypes'
-	subtypes_json = curl_json(url)
+	subtypes_json = http_json(url)
 	url = 'https://api.magicthegathering.io/v1/supertypes'
-	supertypes_json = curl_json(url)
+	supertypes_json = http_json(url)
 
 	merged = {
 		'types':		types_json['types'],

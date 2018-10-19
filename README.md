@@ -1,11 +1,14 @@
 # MtgDb
+Magic: The Gathering API full cached database.
+
+## Description
 
 ## Magic: The Gathering API official site
 https://magicthegathering.io/
 
 ## Install tools (Debian case)
 ```
-sudo apt install curl git
+sudo apt install git
 sudo apt install python-3
 ```
 
