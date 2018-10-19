@@ -35,6 +35,7 @@ def git_info() -> OrderedDict:
 	result = subprocess.run(['git', 'log', '-n1', format, '--', '../data'],
 		check=True, stdout=subprocess.PIPE)
 	outline = result.stdout.decode(sys.stdout.encoding)
+	hash, subject, date, date_iso8601, date_unix, *rest = outline.split('\n')
 
 	data = OrderedDict()
 	data['hash'] = hash
