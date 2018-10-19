@@ -12,13 +12,27 @@ def git_info() -> OrderedDict:
 	outline = result.stdout.decode(sys.stdout.encoding)
 	hash, subject, date, date_iso8601, date_unix, *rest = outline.split('\n')
 
-	info = OrderedDict()
-	info['hash'] = hash
-	info['subject'] = subject
-	info['date'] = date
-	info['date_iso8601'] = date_iso8601
-	info['date_unix'] = date_unix
-	return { 'version': info }
+	head = OrderedDict()
+	head['hash'] = hash
+	head['subject'] = subject
+	head['date'] = date
+	head['date_iso8601'] = date_iso8601
+	head['date_unix'] = date_unix
+
+	# data/ の最新のコミット情報を取得
+	format = '--pretty=format:%H%n%s%n%ai%n%aI%n%at'
+	result = subprocess.run(['git', 'log', '-n1', format, '--', '../data'],
+		check=True, stdout=subprocess.PIPE)
+	outline = result.stdout.decode(sys.stdout.encoding)
+
+	data = OrderedDict()
+	data['hash'] = hash
+	data['subject'] = subject
+	data['date'] = date
+	data['date_iso8601'] = date_iso8601
+	data['date_unix'] = date_unix
+
+	return { 'version': { 'repository': head, 'data': data } }
 
 # 1つの JSON ファイルにまとめる
 def merge_all(files: list, outfile: str):
