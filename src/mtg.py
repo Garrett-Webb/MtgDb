@@ -108,11 +108,10 @@ def types_main():
 	url = 'https://api.magicthegathering.io/v1/supertypes'
 	supertypes_json = http_json(url)
 
-	merged = {
-		'types':		types_json['types'],
-		'subtypes':		subtypes_json['subtypes'],
-		'supertypes':	supertypes_json['supertypes'],
-	}
+	merged = OrderedDict([
+		('types',		types_json['types']),
+		('subtypes',	subtypes_json['subtypes']),
+		('supertypes',	supertypes_json['supertypes'])])
 	with open('types/types.json', 'w') as f:
 		json.dump(merged, f, indent='\t', ensure_ascii=False)
 
