@@ -43,7 +43,7 @@ def fetch_all_cards(page_max: int) -> list:
 		url = urlfmt.format(page, page_size)
 		# cards プロパティからカード配列を取得
 		page_json = http_json(url)
-		list_in_page = page_json['cards']
+		list_in_page = page_json['cards']#.encode('utf-8')
 		# 長さ0なら終了
 		if len(list_in_page) == 0:
 			break
@@ -78,7 +78,7 @@ def cards_main():
 		# 得たインデックスをカードリストに適用して抜き出す
 		ranged_cards = all_cards[left:right]
 		# 先頭2ケタのファイル名で保存
-		with open('cards/{:02x}.json'.format(i), 'w') as f:
+		with open('cards/{:02x}.json'.format(i), 'w', encoding="utf-8") as f:
 			json.dump({'cards': ranged_cards}, f,
 				indent='\t', ensure_ascii=False)
 		saved_count += len(ranged_cards)
@@ -89,14 +89,14 @@ def formats_main():
 	"""全フォーマットデータを取得して保存"""
 	url = 'https://api.magicthegathering.io/v1/formats'
 	formats_json = http_json(url)
-	with open('formats/formats.json', 'w') as f:
+	with open('formats/formats.json', 'w', encoding="utf-8") as f:
 		json.dump(formats_json, f, indent='\t', ensure_ascii=False)
 
 def sets_main():
 	"""全カードセットデータを取得して保存"""
 	url = 'https://api.magicthegathering.io/v1/sets'
 	sets_json = http_json(url)
-	with open('sets/sets.json', 'w') as f:
+	with open('sets/sets.json', 'w', encoding="utf-8") as f:
 		json.dump(sets_json, f, indent='\t', ensure_ascii=False)
 
 def types_main():
@@ -112,7 +112,7 @@ def types_main():
 		('types',		types_json['types']),
 		('subtypes',	subtypes_json['subtypes']),
 		('supertypes',	supertypes_json['supertypes'])])
-	with open('types/types.json', 'w') as f:
+	with open('types/types.json', 'w', encoding="utf-8") as f:
 		json.dump(merged, f, indent='\t', ensure_ascii=False)
 
 def main(argv: list):
