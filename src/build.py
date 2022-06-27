@@ -54,7 +54,7 @@ def merge_all(version: OrderedDict, files: list, outfile: str, verfile: str):
 	merged = OrderedDict()
 	merged.update(version)
 	for file_name in files:
-		with open(file_name, 'r') as f:
+		with open(file_name, 'r', encoding="utf-8") as f:
 			print('Processing...', file_name)
 			# ファイルを1つ読んでパースする
 			part = json.load(f, object_pairs_hook=OrderedDict)
@@ -68,11 +68,11 @@ def merge_all(version: OrderedDict, files: list, outfile: str, verfile: str):
 	# git バージョン情報の表示と書き出し
 	print('Version info:', verfile)
 	print(json.dumps(merged['version']))
-	with open(verfile, 'w') as f:
+	with open(verfile, 'w', encoding="utf-8") as f:
 		json.dump(version, f, indent='\t', ensure_ascii=False)
 	# コンパクトファイルの書き出し
 	print('Writing...', outfile)
-	with open(outfile, 'w') as f:
+	with open(outfile, 'w', encoding="utf-8") as f:
 		json.dump(merged, f, separators=(',', ':'), ensure_ascii=False)
 	print('complete!')
 
